@@ -1,0 +1,157 @@
+/*
+ Retrieve Lawyers who have not Handled any Cases.
+*/
+SELECT Lawyer1.*
+FROM Lawyer1
+LEFT JOIN (
+    SELECT DISTINCT DefendingLawyerID AS ID FROM Case1
+    UNION
+    SELECT DISTINCT ProsecutingLawyerID AS ID FROM Case1
+) AS HandledCases ON Lawyer1.ID = HandledCases.ID
+WHERE HandledCases.ID IS NULL;
+
+/*
+ Retrieve Lawyers who are Managing Partners and are Handling Open Cases.
+*/
+SELECT DISTINCT Lawyer1.*
+FROM Lawyer1
+JOIN LawyersUnderFirm ON Lawyer1.ID = LawyersUnderFirm.ID
+JOIN Case1 ON Lawyer1.ID = Case1.DefendingLawyerID OR Lawyer1.ID = Case1.ProsecutingLawyerID
+WHERE LawyersUnderFirm.Position = 'Managing Partner' AND Case1.CaseStatus = 'Open';
+
+/*
+ Retrieve Clients who have Submitted Joining Requests and have Active Cases.
+*/
+SELECT DISTINCT Client1.*
+FROM Client1
+JOIN JoiningRequest ON Client1.ID = JoiningRequest.RequestFrom
+JOIN Case1 ON Client1.ID = Case1.AccuserID OR Client1.ID = Case1.DefendantID
+WHERE JoiningRequest.RequestStatus = 'Active' AND Case1.CaseStatus = 'Open';
+
+/*
+ Retrieve Lawyers who have Handled Cases in multiple Case Types.
+*/
+SELECT Lawyer1.ID, Lawyer1.Name
+FROM Lawyer1
+JOIN (
+    SELECT ID, COUNT(DISTINCT CaseType) AS CaseTypeCount
+    FROM (
+        SELECT Lawyer1.ID, Case1.CaseType
+        FROM Lawyer1
+        JOIN Case1 ON Lawyer1.ID = Case1.DefendingLawyerID OR Lawyer1.ID = Case1.ProsecutingLawyerID
+    ) AS LawyerCases
+    GROUP BY ID
+) AS CaseTypeCounts ON Lawyer1.ID = CaseTypeCounts.ID
+WHERE CaseTypeCounts.CaseTypeCount > 1;
+
+/*
+ Retrieve Clients who have Submitted Joining Requests and have not been Assigned to any Active Cases.
+*/
+SELECT DISTINCT Client1.*
+FROM Client1
+JOIN JoiningRequest ON Client1.ID = JoiningRequest.RequestFrom
+LEFT JOIN (
+    SELECT DISTINCT AccuserID AS ID FROM Case1 WHERE CaseStatus = 'Open'
+    UNION
+    SELECT DISTINCT DefendantID AS ID FROM Case1 WHERE CaseStatus = 'Open'
+) AS ActiveCases ON Client1.ID = ActiveCases.ID
+WHERE JoiningRequest.RequestStatus = 'Active' AND ActiveCases.ID IS NULL;
+
+/*
+ Retrieve Lawyers who have Handled Cases with the Same Judge.
+*/
+SELECT DISTINCT Lawyer1.*
+FROM Lawyer1
+JOIN (
+    SELECT DISTINCT JudgeID, DefendingLawyerID AS LawyerID FROM Case1
+    UNION
+    SELECT DISTINCT JudgeID, ProsecutingLawyerID AS LawyerID FROM Case1
+) AS CaseLawyers ON Lawyer1.ID = CaseLawyers.LawyerID
+JOIN Case1 ON CaseLawyers.JudgeID = Case1.JudgeID AND (Lawyer1.ID = Case1.DefendingLawyerID OR Lawyer1.ID = Case1.ProsecutingLawyerID);
+
+/*
+ Retrieve Lawyers who have Handled Cases for Clients with Specific Case Types.
+*/
+SELECT DISTINCT Lawyer1.*
+FROM Lawyer1
+JOIN Case1 ON Lawyer1.ID = Case1.DefendingLawyerID OR Lawyer1.ID = Case1.ProsecutingLawyerID
+JOIN Client1 ON Case1.AccuserID = Client1.ID OR Case1.DefendantID = Client1.ID
+WHERE Client1.ID IN (
+    SELECT DISTINCT AccuserID AS ID FROM Case1 WHERE CaseType = 'SpecificCaseType'
+    UNION
+    SELECT DISTINCT DefendantID AS ID FROM Case1 WHERE CaseType = 'SpecificCaseType'
+);
+
+/*
+ Retrieve Lawyers who have Handled Cases with Cases of Multiple Case Types.
+*/
+SELECT DISTINCT Lawyer1.ID, Lawyer1.Name
+FROM Lawyer1
+JOIN (
+    SELECT DISTINCT LawyerID, COUNT(DISTINCT CaseType) AS CaseTypeCount
+    FROM (
+        SELECT Lawyer1.ID AS LawyerID, Case1.CaseType
+        FROM Lawyer1
+        JOIN Case1 ON Lawyer1.ID = Case1.DefendingLawyerID OR Lawyer1.ID = Case1.ProsecutingLawyerID
+    ) AS LawyerCases
+    GROUP BY LawyerID
+) AS CaseTypeCounts ON Lawyer1.ID = CaseTypeCounts.LawyerID
+WHERE CaseTypeCounts.CaseTypeCount > 1;
+
+/*
+ Retrieve Lawyers who are Handling Cases for Clients of a Specific Client Type.
+*/
+SELECT DISTINCT Lawyer1.*
+FROM Lawyer1
+JOIN Case1 ON Lawyer1.ID = Case1.DefendingLawyerID OR Lawyer1.ID = Case1.ProsecutingLawyerID
+JOIN Client1 ON Case1.AccuserID = Client1.ID OR Case1.DefendantID = Client1.ID
+JOIN ClientType ON Client1.ID = ClientType.ID
+WHERE ClientType.ClientType = 'SpecificClientType';
+
+/*
+ Retrieve Lawyers who have Handled Cases with a Specific Result.
+*/
+SELECT DISTINCT Lawyer1.*
+FROM Lawyer1
+JOIN Case1 ON Lawyer1.ID = Case1.DefendingLawyerID OR Lawyer1.ID = Case1.ProsecutingLawyerID
+WHERE Case1.CaseResult = 'SpecificResult';
+
+/*
+ Retrieve Paralegals and Trainees who have not been Associated with any Cases.
+*/
+SELECT ParalegalsAndTrainees.*
+FROM ParalegalsAndTrainees
+LEFT JOIN Associated ON ParalegalsAndTrainees.ID = Associated.AssociatedWithID
+WHERE Associated.AssociatedWithID IS NULL;
+
+/*
+ Retrieve Paralegals and Trainees who are Supervised by Supervisors.
+*/
+SELECT DISTINCT ParalegalsAndTrainees.*
+FROM ParalegalsAndTrainees
+JOIN Supervises ON ParalegalsAndTrainees.ID = Supervises.SuperviseeID;
+
+/*
+ Retrieve Judges who have Handled Cases of a Specific Case Type.
+*/
+SELECT DISTINCT Judges.*
+FROM Judges
+JOIN Case1 ON Judges.JudgeID = Case1.JudgeID
+WHERE Case1.CaseType = 'SpecificCaseType';
+
+/*
+ Retrieve Clients who have Submitted Case Assistance Requests with a Specific Request Type and have Cases with a Specific Type.
+*/
+SELECT DISTINCT Client1.*
+FROM Client1
+JOIN CaseAssistanceRequests ON Client1.ID = CaseAssistanceRequests.RequestFrom
+JOIN Case1 ON Client1.ID = Case1.AccuserID OR Client1.ID = Case1.DefendantID
+WHERE CaseAssistanceRequests.RequestType = 'SpecificRequestType' AND Case1.CaseType = 'SpecificCaseType';
+
+/*
+ Retrieve Lawyers who have Handled Cases of a Specific Case Type with a Specific Result.
+*/
+SELECT DISTINCT Lawyer1.*
+FROM Lawyer1
+JOIN Case1 ON Lawyer1.ID = Case1.DefendingLawyerID OR Lawyer1.ID = Case1.ProsecutingLawyerID
+WHERE Case1.CaseType = 'SpecificCaseType' AND Case1.CaseResult = 'SpecificResult';
