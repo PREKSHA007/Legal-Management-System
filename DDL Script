@@ -1,0 +1,185 @@
+-- Table: Case1
+CREATE TABLE Case1 (
+    CaseID INT PRIMARY KEY,
+    CaseResult VARCHAR(255),
+    CaseStatus VARCHAR(255),
+    JudgeID INT,
+    CaseDetails TEXT,
+    DefendingLawyerID INT,
+    DefendantID INT,
+    AccuserID INT,
+    ProsecutingLawyerID INT
+);
+
+-- Table: Case_Type
+CREATE TABLE Case_Type (
+    CaseID INT,
+    CaseType VARCHAR(255),
+    PRIMARY KEY (CaseID, CaseType)
+);
+
+-- Table: Lawyer1
+CREATE TABLE Lawyer1 (
+    ID INT PRIMARY KEY,
+    EmailID VARCHAR(255) UNIQUE,
+    Name VARCHAR(255),
+    Education VARCHAR(255),
+    Salary DECIMAL(10, 2),
+    LicenseYear INT,
+    Experience INT
+);
+
+-- Table: Lawyer_Area_of_Expertise
+CREATE TABLE Lawyer_Area_of_Expertise (
+    ID INT,
+    AreaOfExpertise VARCHAR(255),
+    PRIMARY KEY (ID, AreaOfExpertise)
+);
+
+-- Table: Paralegals_and_Trainees2
+CREATE TABLE Paralegals_and_Trainees2 (
+    ID INT PRIMARY KEY,
+    Name VARCHAR(255),
+    Salary DECIMAL(10, 2),
+    Experience INT,
+    Education VARCHAR(255),
+    Position VARCHAR(255)
+);
+
+-- Table: PNT_Independent_Lawyer
+CREATE TABLE PNT_Independent_Lawyer (
+    ID INT,
+    IndependentLawyerID INT,
+    PRIMARY KEY (ID, IndependentLawyerID)
+);
+
+-- Table: PNT_Firm
+CREATE TABLE PNT_Firm (
+    ID INT,
+    FirmID INT,
+    PRIMARY KEY (ID, FirmID)
+);
+
+-- Table: Client1
+CREATE TABLE Client1 (
+    ID INT PRIMARY KEY,
+    Name VARCHAR(255),
+    ClientDetails TEXT
+);
+
+-- Table: Client_Type
+CREATE TABLE Client_Type (
+    ID INT,
+    ClientType VARCHAR(255),
+    PRIMARY KEY (ID, ClientType)
+);
+
+-- Table: Judges
+CREATE TABLE Judges (
+    JudgeID INT PRIMARY KEY,
+    Name VARCHAR(255),
+    Experience INT,
+    Salary DECIMAL(10, 2),
+    LicenseYear INT,
+    Education VARCHAR(255)
+);
+
+-- Table: Task1
+CREATE TABLE Task1 (
+    TaskFromID INT,
+    TaskNumber INT,
+    TaskToID INT,
+    TaskStatus VARCHAR(255),
+    TaskDescription TEXT,
+    PRIMARY KEY (TaskFromID, TaskNumber, TaskToID)
+);
+
+-- Table: Task_Case
+CREATE TABLE Task_Case (
+    TaskFromID INT,
+    TaskNumber INT,
+    TaskToID INT,
+    CaseID INT,
+    PRIMARY KEY (TaskFromID, TaskNumber, TaskToID, CaseID)
+);
+
+-- Table: Firm
+CREATE TABLE Firm (
+    FirmID INT PRIMARY KEY,
+    FirmName VARCHAR(255) UNIQUE,
+    EstablishmentYear INT,
+    Expenditure DECIMAL(10, 2)
+);
+
+-- Table: Bar_Council
+CREATE TABLE Bar_Council (
+    ID INT PRIMARY KEY,
+    Name VARCHAR(255)
+);
+
+-- Table: Client_Case_Requests
+CREATE TABLE Client_Case_Requests (
+    RequestFrom INT,
+    RequestTo INT,
+    CaseID INT,
+    RequestType VARCHAR(255),
+    RequestStatus VARCHAR(255),
+    PRIMARY KEY (RequestFrom, CaseID, RequestTo)
+);
+
+-- Table: Joining_Request
+CREATE TABLE Joining_Request (
+    RequestFrom INT,
+    RequestTo INT,
+    RequestStatus VARCHAR(255),
+    PRIMARY KEY (RequestFrom, RequestTo)
+);
+
+-- Table: General_Queries
+CREATE TABLE General_Queries (
+    QueryFromID INT,
+    QueryNo INT,
+    QueryHandlerID INT,
+    QueryStatus VARCHAR(255),
+    QueryDescription TEXT,
+    PRIMARY KEY (QueryFromID, QueryNo)
+);
+
+-- Table: License_Request_Queries
+CREATE TABLE License_Request_Queries (
+    QueryFromID INT PRIMARY KEY,
+    EmailID VARCHAR(255) UNIQUE,
+    QueryHandlerID INT,
+    QueryStatus VARCHAR(255),
+    Name VARCHAR(255),
+    Resume TEXT,
+    CLATScore INT
+);
+
+-- Table: Manages
+CREATE TABLE Manages (
+    ManagerID INT,
+    EmployeeID INT,
+    PRIMARY KEY (ManagerID, EmployeeID)
+);
+
+-- Table: Supervises
+CREATE TABLE Supervises (
+    SupervisorID INT,
+    SuperviseeID INT,
+    PRIMARY KEY (SupervisorID, SuperviseeID)
+);
+
+-- Table: Associated
+CREATE TABLE Associated (
+    AssociatedToID INT,
+    AssociatedWithID INT,
+    PRIMARY KEY (AssociatedToID, AssociatedWithID)
+);
+
+-- Table: Hires
+CREATE TABLE Hires (
+    HiresFromID INT,
+    HiresToID INT,
+    PRIMARY KEY (HiresFromID, HiresToID)
+);
